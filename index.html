@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SpriteForge — Editor</title>
+  <link rel="stylesheet" href="./public/css/theme-dark.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2315171b'/%3E%3Cpath d='M8 22 L16 8 L24 22 Z' fill='%235b9cff'/%3E%3C/svg%3E" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; img-src 'self' data: blob:; connect-src 'self';" />
+</head>
+<body>
+  <div id="app">
+    <header class="sf-titlebar">
+      <span class="sf-brand">SpriteForge</span>
+      <nav class="sf-menubar" id="sf-menubar" role="menubar"></nav>
+      <span class="sf-titlebar-grow"></span>
+      <a href="./runtime.html" target="_blank" rel="noopener noreferrer" class="sf-titlebar-link" title="Open the standalone runtime player in a new tab">runtime player ↗</a>
+      <span style="color: var(--sf-fg-3); font-size: 12px;">press <kbd>?</kbd> for shortcuts</span>
+    </header>
+
+    <div class="sf-layout">
+      <aside id="tools" class="sf-tool-palette"></aside>
+
+      <main class="sf-stage" id="stage">
+        <div class="sf-stage-hint" id="stage-hint">
+          <h2>Welcome to SpriteForge</h2>
+          <p>Pick the <b>Bone</b> tool (<kbd>B</kbd>) and click on the stage to add a bone.<br>
+             Press <kbd>I</kbd> to insert a sample sprite, or drag a PNG onto the stage.</p>
+          <p class="sf-muted">Scroll to zoom · Middle-drag to pan · <kbd>F</kbd> to frame all · <kbd>?</kbd> for shortcuts</p>
+          <p class="sf-muted">Use the <b>Timeline</b> below to animate: scrub the playhead, then move bones to record keyframes (auto-key is on).</p>
+        </div>
+      </main>
+
+      <aside class="sf-right">
+        <section id="hierarchy" class="sf-panel"></section>
+        <div class="sidebar-splitter" id="sidebar-splitter"></div>
+        <section id="inspector" class="sf-panel"></section>
+      </aside>
+    </div>
+
+    <section id="timeline" class="sf-timeline"></section>
+
+    <div id="help" class="sf-help">
+      <div class="sf-help-inner">
+        <div class="sf-help-header">
+          <h3>Keyboard shortcuts</h3>
+          <button id="help-close" aria-label="Close">×</button>
+        </div>
+        <div class="sf-help-list-wrap">
+          <ul id="help-list" class="sf-help-list"></ul>
+        </div>
+        <p class="sf-muted sf-small">Press <kbd>?</kbd> or <kbd>Esc</kbd> to close this panel.</p>
+      </div>
+    </div>
+
+    <footer id="status" class="sf-statusbar">
+      <span><span class="sf-dot"></span><span id="sf-status-mode">ready</span></span>
+      <span id="sf-build-info">build: —</span>
+      <span style="margin-left: auto;">spine 4.1 · dark</span>
+    </footer>
+  </div>
+
+  <script type="module" src="./dist/editor.js"></script>
+</body>
+</html>

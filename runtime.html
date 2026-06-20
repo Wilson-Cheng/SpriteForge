@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SpriteForge — Runtime Player</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #15171b; color: #e6e9ef; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    #app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+    header { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: #1a1d23; border-bottom: 1px solid #2a2e36; }
+    header .brand { color: #5b9cff; font-weight: 700; }
+    header .phase { color: #7be39a; }
+    header .actions { margin-left: auto; display: flex; gap: 8px; }
+    button, .link-btn { background: #2a2e36; color: #e6e9ef; border: 1px solid #3a3e46; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; }
+    button:hover, .link-btn:hover { background: #3a3e46; color: #e6e9ef; }
+    select { background: #2a2e36; color: #e6e9ef; border: 1px solid #3a3e46; padding: 6px 8px; border-radius: 4px; font-size: 13px; }
+    main { display: grid; place-items: center; overflow: auto; padding: 20px; }
+    canvas { background: #2a2f3a; border: 1px solid #2a2e36; image-rendering: pixelated; max-width: 100%; max-height: 100%; }
+    .drop-hint { color: #8a8e96; font-size: 12px; margin: 12px 0 0 0; max-width: 560px; text-align: center; line-height: 1.5; }
+    .drop-hint code, .drop-hint kbd { font-size: 11px; }
+    footer { padding: 6px 16px; background: #1a1d23; border-top: 1px solid #2a2e36; display: flex; align-items: center; gap: 12px; font-size: 12px; color: #b6b9c0; }
+  </style>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2315171b'/%3E%3Cpath d='M8 22 L16 8 L24 22 Z' fill='%235b9cff'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <span class="brand">SpriteForge</span>
+      <span class="phase">runtime</span>
+      <span style="color:#7a7e86">— standalone player (Spine 4.1)</span>
+      <div class="actions">
+        <a href="./index.html" target="_blank" rel="noopener noreferrer" class="link-btn" title="Open the SpriteForge editor in a new tab">editor ↗</a>
+        <select id="anim-list" title="Animation">
+          <option>—</option>
+        </select>
+        <button id="pick-bundle" title="Load a project bundle">Load…</button>
+        <button id="pick-json" title="Load files separately">Pick files</button>
+      </div>
+    </header>
+    <main>
+      <canvas id="runtime-canvas" width="512" height="512"></canvas>
+      <p class="drop-hint">drop a Spine bundle (<code>.json</code> + <code>.atlas</code> + <code>.png</code>) to play — exported via the editor's <kbd>⌘E</kbd></p>
+    </main>
+    <footer>
+      <span class="sf-status">SpriteForge Runtime ready</span>
+      <span style="margin-left:auto;color:#5a5e66">space = play/pause · 0 deps · WebGL2</span>
+    </footer>
+  </div>
+  <script type="module" src="./dist/runtime.js"></script>
+</body>
+</html>

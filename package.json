@@ -1,0 +1,42 @@
+{
+  "name": "spriteforge",
+  "version": "0.8.0",
+  "description": "Browser-based skeletal 2D sprite animation editor with Spine-compatible JSON export",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "keywords": [
+    "sprite",
+    "animation",
+    "skeletal-animation",
+    "spine",
+    "webgl",
+    "typescript",
+    "game-development"
+  ],
+  "homepage": "https://github.com/Wilson-Cheng/SpriteForge#readme",
+  "bugs": {
+    "url": "https://github.com/Wilson-Cheng/SpriteForge/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wilson-Cheng/SpriteForge.git"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "check:dom": "node scripts/check-dom.mjs",
+    "check": "npm run typecheck && npm run check:dom"
+  },
+  "dependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.9.3",
+    "ws": "^8.21.0"
+  }
+}
