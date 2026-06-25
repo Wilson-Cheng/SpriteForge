@@ -11,6 +11,7 @@
 
 import type { Project, Bone, Id } from "./model";
 import { mat3FromTRS, mat3FromTRSS, mat3Identity, type Mat3, mat3Copy } from "./math";
+import { composeWorldFromParentRaw, type InheritMode } from "./animation";
 
 export interface BonePose {
   bone: Bone;
@@ -57,40 +58,11 @@ export function orderBones(project: Project): Bone[] {
 }
 
 /** Compose a child's world transform from its parent's world matrix and
- *  its own local matrix, honoring the bone's `inherit` mode. The math is
- *  copied verbatim from the original inline blocks in `evalPose` /
- *  `evalPoseWithSamples` — this helper exists purely to remove the
- *  duplication, not to "improve" the formula. */
+ *  its own local matrix, honoring the bone's `inherit` mode. Delegates
+ *  to the shared core animation engine to keep editor and runtime in sync. */
 function composeWorldFromParent(parent: Mat3, local: Mat3, inherit: Bone["inherit"]): Mat3 {
-  // Allocate a fresh matrix — bones can be evaluated many times per
-  // frame so we don't want a shared scratch buffer.
   const result = mat3FromTRS(0, 0, 0, 1);
-  const A = parent.m, B = local.m, M = result.m;
-  if (inherit === "noRotationOrReflection") {
-    // Spine 4.x's noRotationOrReflection mode: the bone inherits
-    // its position offset (in the parent's *untransformed* local
-    // frame) but not rotation / scale / reflection. In our matrix
-    // terms that means: keep parent's translation only, drop its
-    // rotation. We synthesize an "R + T only" parent matrix by
-    // zeroing the rotation columns and re-applying just tx/ty.
-    // Rotation: child's local rotation only (not inherited from parent).
-    M[0] = B[0]; M[1] = B[1];
-    M[2] = B[2]; M[3] = B[3];
-    // Position: rotate child's local pos by parent's world matrix
-    // (a,b,c,d columns), then add parent's translation.
-    // Spine formula: x=child.x*parent.a+child.y*parent.c+parent.tx
-    M[4] = A[0] * B[4] + A[2] * B[5] + A[4];
-    M[5] = A[1] * B[4] + A[3] * B[5] + A[5];
-    return result;
-  }
-  // Inline mul to avoid two allocations.
-  const a00 = A[0], a01 = A[1], a10 = A[2], a11 = A[3], a20 = A[4], a21 = A[5];
-  M[0] = a00 * B[0] + a10 * B[1];
-  M[1] = a01 * B[0] + a11 * B[1];
-  M[2] = a00 * B[2] + a10 * B[3];
-  M[3] = a01 * B[2] + a11 * B[3];
-  M[4] = a00 * B[4] + a10 * B[5] + a20;
-  M[5] = a01 * B[4] + a11 * B[5] + a21;
+  composeWorldFromParentRaw(result.m, parent.m, local.m, inherit as InheritMode);
   return result;
 }
 

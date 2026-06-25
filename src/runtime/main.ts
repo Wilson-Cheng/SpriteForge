@@ -16,6 +16,7 @@
 // draw. Bones without an active animation draw in their bind pose.
 
 import type { SpineJson, Atlas, SpineSlot, SpineAnimation, SpineAttachment } from "./spine-types";
+import { solveBezierX, bezierY, interpolateCurve, composeWorldFromParentRaw, type CurveData, type InheritMode } from "../core/animation";
 
 /** Render a fatal-error dialog that matches the editor's modal style.
  *  The runtime is a standalone artifact that ships to consumers, so
@@ -213,17 +214,8 @@ function mat3FromPose(pose: { x: number; y: number; rotation: number; scaleX: nu
   ]);
 }
 
-function composeWorldFromParent(out: Mat3, parent: Mat3, local: Mat3, inherit: BoneRuntime["inherit"]): void {
-  if (inherit === "noRotationOrReflection" || inherit === "onlyTranslation") {
-    out[0] = local[0]!;
-    out[1] = local[1]!;
-    out[2] = local[2]!;
-    out[3] = local[3]!;
-    out[4] = parent[0]! * local[4]! + parent[2]! * local[5]! + parent[4]!;
-    out[5] = parent[1]! * local[4]! + parent[3]! * local[5]! + parent[5]!;
-    return;
-  }
-  mat3Multiply(out, parent, local);
+function composeWorldFromParent(out: Mat3, parent: Mat3, local: Mat3, inherit: InheritMode): void {
+  composeWorldFromParentRaw(out, parent, local, inherit);
 }
 
 function flattenMat3(m: Mat3, out: Float32Array, offset: number): void {
@@ -244,64 +236,7 @@ function flattenMat3(m: Mat3, out: Float32Array, offset: number): void {
 /*  Bezier curves (Spine format: [c2, c3, c4, c5] = cp1, cp2, implicit 0,1)   */
 /* -------------------------------------------------------------------------- */
 
-type Curve = "linear" | "stepped" | number[];
-
-function solveBezierX(x: number, c2: number, c3: number, c4: number, c5: number): number {
-  // Newton-Raphson to solve x(t) = x, return t. Spine uses the same shape
-  // (cp1, cp2, anchors 0,1).
-  let t = x;
-  for (let i = 0; i < 8; i++) {
-    const cx = 3 * (1 - t) * (1 - t) * t * c2 +
-               3 * (1 - t) * t * t * c4 +
-               t * t * t;
-    const dx = 3 * (1 - t) * (1 - t) * c2 +
-               6 * (1 - t) * t * (c4 - c2) +
-               3 * t * t * (1 - c4);
-    if (Math.abs(dx) < 1e-6) break;
-    const t2 = t - (cx - x) / dx;
-    if (Math.abs(t2 - t) < 1e-6) { t = t2; break; }
-    t = Math.max(0, Math.min(1, t2));
-  }
-  return t;
-}
-
-function bezierY(t: number, c3: number, c5: number): number {
-  return 3 * (1 - t) * (1 - t) * t * c3 +
-         3 * (1 - t) * t * t * c5 +
-         t * t * t;
-}
-
-function interpolateCurve(
-  t: number,
-  curve: Curve,
-  linearValue: (a: number) => number
-): number {
-  if (curve === "stepped") return 0; // caller will use first keyframe
-  if (curve === "linear" || typeof curve === "undefined") {
-    return linearValue(t);
-  }
-  // Bezier
-  const [c2, c3, c4, c5] = curve;
-  const tb = solveBezierX(t, c2, c3, c4, c5);
-  return bezierY(tb, c3, c5);
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Skeleton state                                                            */
-/* -------------------------------------------------------------------------- */
-
-interface Skeleton {
-  spine: SpineJson;
-  atlas: Atlas;
-  atlasTexture: WebGLTexture;
-  boneMap: Map<string, BoneRuntime>;
-  slotOrder: SpineSlot[];
-  attachments: Map<string, BufferRefs>; // key = slot:attachment
-  animations: Map<string, SpineAnimation>;
-  /** Flattened bone world matrices for the GPU. */
-  boneMatrixBuf: Float32Array; // 9 floats per bone
-  globalBindPose: Map<string, Mat3>; // per-bone bind-pose world
-}
+type Curve = CurveData;
 
 interface BoneRuntime {
   name: string;
@@ -315,10 +250,22 @@ interface BoneRuntime {
    *  the official Spine `hero` sample uses one of these for the foot
    *  bones so the feet stay pointing down regardless of leg
    *  rotation. */
-  inherit: "normal" | "noRotationOrReflection" | "noScaleOrReflection" | "onlyTranslation";
+  inherit: InheritMode;
   /** Cached world matrix from previous frame, used as the parent for
    *  this frame's local × parent composition. */
   world: Mat3;
+}
+
+interface Skeleton {
+  spine: SpineJson;
+  atlas: Atlas;
+  atlasTexture: WebGLTexture;
+  boneMap: Map<string, BoneRuntime>;
+  slotOrder: SpineSlot[];
+  attachments: Map<string, BufferRefs>;
+  animations: Map<string, SpineAnimation>;
+  boneMatrixBuf: Float32Array;
+  globalBindPose: Map<string, Mat3>;
 }
 
 function buildBoneMap(skeleton: SpineJson): Map<string, BoneRuntime> {
