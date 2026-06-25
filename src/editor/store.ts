@@ -12,7 +12,8 @@
 
 import { createDefaultProject, type Project, type Id, type Bone, type Keyframe, type EasingPreset, EASING_PRESETS, BONE_PALETTE, newId, uniqueName } from "../core/model";
 import { isDescendantOf } from "./hierarchy-ops";
-import { evalPose } from "../core/eval";
+import { evalBoneWorld, evalPose } from "../core/eval";
+import { mat3DecomposeTRSS } from "../core/math";
 
 /** Convert a world-space point into a parent's local space using the
  *  parent's *world* transform. Falls back to identity if the parent can't
@@ -380,15 +381,30 @@ export function reparentBone(state: EditorState, id: Id, newParentId: Id | null)
     if (!project.bones[newParentId]) return false;
     if (isDescendantOf(project, id, newParentId)) return false;
   }
-  // If we're moving from root to parented, drop from rootIds.
-  if (bone.parent === null) {
+  // No-op if the bone already has the requested parent.
+  if (bone.parent === newParentId) return false;
+
+  // Capture the bone's current world transform so we can re-apply it
+  // after changing parents. Without this, reparenting to root would
+  // keep the old local values and the bone would visually jump.
+  const oldWorld = evalBoneWorld(project, id);
+  if (!oldWorld) return false;
+
+  bone.parent = newParentId;
+
+  if (newParentId === null) {
+    // Moving to root: ensure it's in rootIds and make local = world.
+    if (!project.rootIds.includes(id)) project.rootIds.push(id);
+    const { x, y, rotation, scaleX, scaleY } = mat3DecomposeTRSS(oldWorld);
+    bone.x = x;
+    bone.y = y;
+    bone.rotation = rotation;
+    bone.scaleX = scaleX;
+    bone.scaleY = scaleY;
+  } else {
+    // Moving from root to parented: drop from rootIds.
     project.rootIds = project.rootIds.filter((x) => x !== id);
   }
-  // If we're moving from parented to root, add to rootIds.
-  if (newParentId === null && bone.parent !== null) {
-    project.rootIds.push(id);
-  }
-  bone.parent = newParentId;
   return true;
 }
 

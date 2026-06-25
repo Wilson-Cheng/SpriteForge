@@ -220,7 +220,8 @@ body {
 
 /* The 3 columns inside .sf-layout are flex children. Widths are pinned to
    the CSS variables; stage takes the remaining space. */
-#tools    { width: var(--tools-w); flex: 0 0 auto; background: var(--bg-1); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+#tools    { width: var(--tools-w); flex: 0 0 auto; background: var(--bg-1); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+#tools::-webkit-scrollbar { display: none; }
 .sf-stage { flex: 1 1 auto; min-width: 0; position: relative; background: var(--bg-0); overflow: hidden; }
 .sf-right { width: var(--right-w); flex: 0 0 auto; background: var(--bg-1); border-left: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
 
@@ -820,8 +821,11 @@ kbd {
   flex: 0 0 auto;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.06));
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
 }
+.tl-graph::-webkit-scrollbar { display: none; }
 .tl-graph-empty {
   height: 100%;
   display: flex; align-items: center; justify-content: center;

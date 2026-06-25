@@ -419,13 +419,35 @@ export function buildTimeline(parent: HTMLElement, state: EditorState): void {
     const newCursorX = timeUnderCursor * timelineZoom;
     tracks.scrollLeft = Math.max(0, newCursorX - (e.clientX - rect.left));
     rulerWrap.scrollLeft = tracks.scrollLeft;
-    graph.scrollLeft = tracks.scrollLeft;
-  }, { passive: false });
+     graph.scrollLeft = tracks.scrollLeft;
+   }, { passive: false });
 
-  // Drag the timeline to pan. Two gestures:
-//   - middle-mouse drag anywhere on the timeline body (mirrors the
-//     stage viewport's pan convention).
-//   - Shift + left-drag inside the tracks area (below the ruler). The
+   // Same Shift + wheel zoom for the graph panel — shared timelineZoom
+   // keeps the tracks and graph in sync.
+   graph.addEventListener("wheel", (e: WheelEvent) => {
+     if (!e.shiftKey) return;
+     e.preventDefault();
+     const rect = graph.getBoundingClientRect();
+     const cursorX = e.clientX - rect.left + graph.scrollLeft;
+     const timeUnderCursor = cursorX / timelineZoom;
+     const factor = Math.exp(-e.deltaY * 0.0015);
+     const anim = getActiveAnimation(state);
+     const zoomMax = anim ? maxZoomForVisibleDuration(anim.duration) : ZOOM_MAX;
+     const next = Math.max(ZOOM_MIN, Math.min(zoomMax, timelineZoom * factor));
+     if (Math.abs(next - timelineZoom) < 0.0001) return;
+     timelineZoom = next;
+     saveTimelineZoom(timelineZoom);
+     render();
+     const newCursorX = timeUnderCursor * timelineZoom;
+     tracks.scrollLeft = Math.max(0, newCursorX - (e.clientX - rect.left));
+     rulerWrap.scrollLeft = tracks.scrollLeft;
+     graph.scrollLeft = tracks.scrollLeft;
+   }, { passive: false });
+
+   // Drag the timeline to pan. Two gestures:
+ //   - middle-mouse drag anywhere on the timeline body (mirrors the
+ //     stage viewport's pan convention).
+ //   - Shift + left-drag inside the tracks area (below the ruler). The
 //     ruler keeps its scrub behaviour so we deliberately exclude it
 //     here — Shift+drag on the ruler still scrubs the playhead.
   let panStart: { startX: number; scrollLeft: number } | null = null;

@@ -27,15 +27,6 @@ export function buildToolPalette(parent: HTMLElement, state: EditorState): void 
         <span>Select</span>
         <kbd>V</kbd>
       </button>
-      <button class="tool-btn" data-tool="bone" title="Bone tool (B)">
-        <svg viewBox="0 0 24 24" width="20" height="20">
-          <circle cx="6" cy="12" r="3" fill="currentColor"/>
-          <line x1="6" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="3"/>
-          <circle cx="20" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span>Bone</span>
-        <kbd>B</kbd>
-      </button>
       <button class="tool-btn" data-tool="rotate" title="Rotate bone — drag a selected bone to rotate around its head (R)">
         <svg viewBox="0 0 24 24" width="20" height="20">
           <path d="M12 4a8 8 0 1 0 7.5 5.2" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -55,6 +46,15 @@ export function buildToolPalette(parent: HTMLElement, state: EditorState): void 
     </div>
     <div class="panel-subhdr">Hierarchy</div>
     <div class="tool-row">
+      <button class="tool-btn" data-tool="bone" title="Bone tool (B)">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <circle cx="6" cy="12" r="3" fill="currentColor"/>
+          <line x1="6" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="3"/>
+          <circle cx="20" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Bone</span>
+        <kbd>B</kbd>
+      </button>
       <button class="tool-btn small" id="h-add-child" title="Add child bone (N)">
         <svg viewBox="0 0 24 24" width="18" height="18">
           <circle cx="12" cy="6" r="2.5" fill="currentColor"/>
@@ -69,7 +69,7 @@ export function buildToolPalette(parent: HTMLElement, state: EditorState): void 
           <circle cx="6" cy="6" r="2.5" fill="currentColor"/>
           <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2.5"/>
         </svg>
-        <span>Root</span>
+        <span>Make root</span>
       </button>
     </div>
     <div class="panel-subhdr">File</div>
@@ -104,7 +104,7 @@ export function buildToolPalette(parent: HTMLElement, state: EditorState): void 
           <path d="M4 4h16v6H4zM4 14h10v6H4z" fill="none" stroke="currentColor" stroke-width="2"/>
           <path d="M17 13l3 3-3 3M20 16h-7" fill="none" stroke="currentColor" stroke-width="2"/>
         </svg>
-        <span>Spine</span>
+        <span>Import Spine</span>
       </button>
       <button class="tool-btn small" id="h-insert" title="Insert image attachment from a PNG/JPG (⌘/Ctrl+I)">
         <svg viewBox="0 0 24 24" width="18" height="18">

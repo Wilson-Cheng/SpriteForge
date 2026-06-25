@@ -131,3 +131,18 @@ export function radToDeg(r: number): number { return (r * 180) / Math.PI; }
 
 /** Convert degrees to radians. */
 export function degToRad(d: number): number { return (d * Math.PI) / 180; }
+
+/** Decompose a 2D affine matrix into translation, rotation (degrees),
+ *  and non-uniform scale. This is the inverse of `mat3FromTRSS`.
+ *  Scale is taken as positive magnitudes; rotation is derived from the
+ *  first column. Used when reparenting a bone while preserving its
+ *  world-space transform. */
+export function mat3DecomposeTRSS(mat: Mat3): { x: number; y: number; rotation: number; scaleX: number; scaleY: number } {
+  const m = mat.m;
+  const a = m[0]!, b = m[1]!, c = m[2]!, d = m[3]!;
+  const x = m[4]!, y = m[5]!;
+  const scaleX = Math.sqrt(a * a + b * b);
+  const scaleY = Math.sqrt(c * c + d * d);
+  const rotation = scaleX > 1e-12 ? radToDeg(Math.atan2(b, a)) : 0;
+  return { x, y, rotation, scaleX, scaleY };
+}
